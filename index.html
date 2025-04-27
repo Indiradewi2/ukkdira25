@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UKK Paket 1 | Indira Dewi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <style type="text/css">
+        .btn {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <!-- form kalkulator -->
+                <form id="calcForm" class="p-2 border rounded bg-primary-subtle">
+                    <h3 class="text-center">Mini Kalkulator</h3>
+                    <!-- input angka -->
+                    <input type="text" step="any" name="num1" id="num1" class="form-control mb-3" autocomplete="off"
+                        placeholder="Masukkan Input Pertama" />
+                    <input type="text" step="any" name="num2" id="num2" class="form-control mb-3" autocomplete="off"
+                        placeholder="Masukkan Input Kedua" />
+                    <!-- tombol operasi & reset -->
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <button type="button" class="btn btn-outline-secondary" onclick="hitung('+')" title="Tambah">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="hitung('-')" title="Kurang">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="hitung('*')" title="Kali">
+                            <i class="fas fa-xmark"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="hitung('/')" title="Bagi">
+                            <i class="fas fa-divide"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="hitung('%')" title="Persen">
+                            <i class="fas fa-percent"></i>
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary" title="Clear Entry">CE</button>
+                    </div>
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <button type="button" class="btn btn-outline-secondary" onclick="hitung('^')" title="Pangkat">
+                            x<sup>y</sup>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="hitung('√')" title="Akar">
+                            √x
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="hitung('sin')" title="Sinus">
+                            sin(x)
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="hitung('cos')" title="Cosinus">
+                            cos(x)
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="hitung('tan')" title="Tangen">
+                            tan(x)
+                        </button>
+                    </div>
+                </form>
+
+                <!-- menampilkan hasil -->
+                <div class="p-2 border rounded bg-light mt-3">
+                    <h4 class="text-center" id="hasil">Hasil :</h4>
+                    <!-- menampilkan tombol gunakan hasil -->
+                    <div class="text-center mt-2">
+                        <button type="button" id="useResultBtn" class="btn btn-outline-success btn-sm" style="display: none;" onclick="pakaiHasilKeInput()">Gunakan Hasil</button>
+                    <!-- tombol untuk menghapus -->
+                    <div class="mt-2" id="mcButton" style="display: none;">
+                        <button type="button" class="btn btn-danger" onclick="resetHasil()" title="Memory Clear">MC</button>
+                    <div class="mt-3">
+                        <h5 class="text-center">Histori:</h5>
+                        <ul id="historyList" class="list-group small"></ul>
+                        <button type="button" class="btn btn-outline-danger btn-sm mt-2 w-100" onclick="hapusHistori()">Hapus Histori</button>
+                    </div>
+                </div>
+            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p class="text-center mt-3">&copy; UKK 2025 | Indira Dewi | XII RPL A</p>
+
+    <script>
+        // melanjutkan operasi hitung dari nilai hasil
+        function pakaiHasilKeInput() {
+        const hasilText = document.getElementById('hasil').innerText;
+        const hasilMatch = hasilText.match(/= ([\-0-9\.]+)/); // ambil angka hasil
+        if (hasilMatch) {
+            const hasil = hasilMatch[1];
+            document.getElementById('num1').value = hasil;
+            document.getElementById('num2').value = '';
+            document.getElementById('num2').focus();
+        }
+    }
+        //input tombol
+        function hitung(operator) {
+        const num1Input = document.getElementById('num1');
+        const num2Input = document.getElementById('num2');
+        const hasilEl = document.getElementById('hasil');
+        const mcBtn = document.getElementById('mcButton');
+        document.getElementById('useResultBtn').style.display = 'inline-block';
+
+        const rawNum1 = num1Input.value.trim();
+        const rawNum2 = num2Input.value.trim();
+        const satuInput = ['sin', 'cos', 'tan', '√'];
+        let angkaList = [];
+
+        // validasi input kosong
+        if (satuInput.includes(operator)) {
+            if (rawNum1 === '') {
+                alert('Input pertama tidak boleh kosong');
+                resetForm();
+                return;
+            }
+            angkaList = rawNum1.split(',').map(n => n.trim());
+        } else {
+            if (rawNum1 === '' && rawNum2 === '') {
+                alert('Input tidak boleh kosong');
+                resetForm();
+                return;
+            }
+            if (rawNum1 === '') {
+                alert('Input pertama tidak boleh kosong');
+                resetForm();
+                return;
+            }
+            if (rawNum2 === '') {
+                alert('Input kedua tidak boleh kosong');
+                resetForm();
+                return;
+            }
+            angkaList = [...rawNum1.split(','), ...rawNum2.split(',')].map(n => n.trim());
+        }
+
+        // validasi semua harus angka
+        if (angkaList.some(n => isNaN(n))) {
+            alert('Semua input harus berupa angka dan dipisahkan dengan koma jika lebih dari satu');
+            resetForm();
+            return;
+        }
+
+        // ubah ke float
+        angkaList = angkaList.map(n => parseFloat(n));
+
+        // jika ada 0 selain angka pertama (kondisi khusus)
+        if (operator === '/' && angkaList.slice(1).includes(0)) {
+            alert('Tidak dapat membagi dengan nol');
+            resetForm();
+            return;
+        }
+
+        let hasil;
+
+        // perhitungan satu input
+        if (satuInput.includes(operator)) {
+            const n1 = angkaList[0];
+            switch (operator) {
+                case '√': hasil = Math.sqrt(n1); break;
+                case 'sin': hasil = Math.sin(n1 * Math.PI / 180); break;
+                case 'cos': hasil = Math.cos(n1 * Math.PI / 180); break;
+                case 'tan': hasil = Math.tan(n1 * Math.PI / 180); break;
+            }
+            hasil = parseFloat(hasil.toFixed(5));
+            hasilEl.innerText = `${operator}(${n1}) = ${hasil}`;
+            tambahKeHistori(hasilEl.innerText);
+        } else {
+            // perhitungan multi angka
+            switch (operator) {
+                case '+':
+                    hasil = angkaList.reduce((a, b) => a + b);
+                    break;
+                case '-':
+                    hasil = angkaList.reduce((a, b) => a - b);
+                    break;
+                case '*':
+                    hasil = angkaList.reduce((a, b) => a * b);
+                    break;
+                case '/':
+                    hasil = angkaList.reduce((a, b) => a / b);
+                    break;
+                case '%':
+                    hasil = angkaList[0];
+                    for (let i = 1; i < angkaList.length; i++) {
+                        hasil = (hasil / 100) * angkaList[i];
+                    }
+                    break;
+                case '^':
+                    hasil = angkaList.reduce((a, b) => Math.pow(a, b));
+                    break;
+            }
+
+            hasil = parseFloat(hasil.toFixed(5));
+            hasilEl.innerText = angkaList.join(` ${operator} `) + ' = ' + hasil;
+            tambahKeHistori(hasilEl.innerText);
+        }
+
+        mcBtn.style.display = 'block';
+        num1Input.value = '';
+        num2Input.value = '';
+        num1Input.focus();
+    }
+        // array untuk menyimpan histori
+// mengambil histori dari localStorage saat pertama kali
+let historyData = JSON.parse(localStorage.getItem('histori')) || [];
+
+function tampilkanHistori() {
+    const historyList = document.getElementById('historyList');
+    historyList.innerHTML = '';
+
+    historyData.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item list-group-item-action';
+        li.innerText = `${index + 1}. ${item}`;
+        li.style.cursor = 'pointer';
+
+        // klik sekali untuk pakai hasil
+        li.onclick = () => pakaiHistori(item);
+
+        // klik dua kali untuk hapus item
+        li.ondblclick = () => {
+            if (confirm(`Yakin ingin menghapus histori ini?\n"${item}"`)) {
+                historyData.splice(index, 1); // hapus item dari array
+                localStorage.setItem('histori', JSON.stringify(historyData));
+                tampilkanHistori(); // perbarui tampilan
+            }
+        };
+
+        historyList.appendChild(li);
+    });
+}
+//menampilkan hasil di histori
+function tambahKeHistori(teks) {
+    historyData.push(teks);
+    if (historyData.length > 10) historyData.shift(); // batasi 10 item
+    localStorage.setItem('histori', JSON.stringify(historyData));
+    tampilkanHistori();
+}
+//menghapus histori
+function hapusHistori() {
+    historyData = [];
+    localStorage.removeItem('histori');
+    tampilkanHistori();
+}
+// memakai histori
+function pakaiHistori(teks) {
+    const hasilMatch = teks.match(/= ([\-0-9\.]+)/); // ambil angka setelah "="
+    if (hasilMatch) {
+        const hasil = hasilMatch[1];
+        document.getElementById('num1').value = hasil;
+        document.getElementById('num2').value = '';
+        document.getElementById('num2').focus();
+        // tampilkan tombol "Gunakan Hasil" dan "MC"
+        document.getElementById('useResultBtn').style.display = 'inline-block';
+        document.getElementById('mcButton').style.display = 'block';
+        // update tampilan hasil
+        document.getElementById('hasil').innerText = `Dipilih dari histori: ${hasil}`;
+    }
+}
+window.onload = () => {
+    tampilkanHistori();
+};
+
+        //fungsi menghapus hasil
+        function resetHasil() {
+    document.getElementById('hasil').innerText = 'Hasil :';
+    document.getElementById('mcButton').style.display = 'none';
+    document.getElementById('useResultBtn').style.display = 'none';
+}
+        //reset form
+        function resetForm() {
+            document.getElementById('calcForm').reset();
+            resetHasil();
+            document.getElementById('num1').focus();
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
